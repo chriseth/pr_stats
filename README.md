@@ -16,20 +16,25 @@ If it flashes yellow, it means that someone should add a review.
 
 ## How to use
 
-It is built to have a driver (``run.sh``, ``webhook_wait.py`` and ``github_pr.py``)
-to be run on a host computer (a Raspberry PI is perfect) and an LED controller
-to be run on an Arduino (``pr_stats.ino``) connected via USB.
+The code is set up to control a strip with 120 LEDs connected to port 13
+of an ESP32 that logs into a local WiFi and retrieves the pull request
+status from github.. The number of LEDs and the port can be changed in
+``leds.h``.
 
-The code is set up to control a strip with 120 LEDs connected to port 5, but that
-can be easily changed via the macros at the top of ``pr_stats.ino``.
+You also need to configure some access codes in ``secrets.h``:
 
-The main command is the file ``run.sh`` which establishes an update cycle
-by waiting for a github webook and then calling the ``github_pr.py`` script
-to actually retrieve the data and send it to the Arduino.
+    #define WIFI_SSID "MY_SSID"
+    #define WIFI_PASSWORD "PASSWORD"
+    #define Github_token "token github_token"
+    #define REPOSITORY_OWNER "ethereum"
+    #define REPOSITORY_NAME "solidity"
 
-You have to supply a host name for the github webhook and a github
-api token. The script uses the service at http://serveo.net
-to forward ``https://<hostname>.serveo.net`` to the local port 8888, where
-``webhook_wait.py`` is waiting for a webhook call from github. As soon as
-that happened (or after one minute), it calls ``github_pr.py`` to perform
-the update and then waits again.
+## How to improved
+
+ - it would be nice to have an animation/hilight when PRs change state
+ - if PRs are closed, there could be an even nicer animation
+ - some startup pattern would be helpful
+ - currently, the WiFi code is blocking and thus the LEDs stop flashing
+   for each update
+ - the ESP32 should listen for a webhook call from github to update
+
