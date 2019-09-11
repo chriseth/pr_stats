@@ -8,13 +8,14 @@
 
 struct PRs
 {
-
     void setup();
     void update();
 
+    // Retrieve list of PRs from other thread.
     int updatedPRs(int _sequence, std::vector<PR>& _prs);
 
 private:
+    Networking m_networking;
     std::vector<PR> m_prs;
     SemaphoreHandle_t m_mutex = xSemaphoreCreateMutex();
     int m_updateSequence = 0;
@@ -27,14 +28,16 @@ void PRs::setup()
     // Serial.setDebugOutput(true);
     while (!Serial) {};
 
-    Networking::setup();
+    m_networking.setup();
 }
 
 void PRs::update()
 {
     int now = time(nullptr);
-    if (now < m_previousUpdate + 20)
+    if (!m_networking.updateRequested() && now < m_previousUpdate + 120)
         return;
+
+    Serial.println("Running updated.");
     m_previousUpdate = now;
 
     std::vector<PR> newPRs;

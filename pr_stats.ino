@@ -23,7 +23,7 @@ void wifiLoop(void* _param)
   while (true)
   {
     prs.update();
-    delay(1000);
+    delay(100);
   }
 }
 
@@ -34,5 +34,5 @@ void loop()
   sequenceNumber = prs.updatedPRs(sequenceNumber, prStats);
   for (int i = 0; i < 100; i++)
     leds.render(prStats);
-  delay(10);
+  yield();
 }  

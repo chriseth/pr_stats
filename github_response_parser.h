@@ -104,7 +104,6 @@ std::vector<PR> ResponseParser::parseResponse(Stream& _stream)
 {
     std::vector<PR> prs;
 
-    Serial.println("Got stream.");
     if (!_stream.findUntil("[", ""))
     {
         Serial.println("Array not found.");
@@ -120,7 +119,6 @@ std::vector<PR> ResponseParser::parseResponse(Stream& _stream)
             Serial.println("Error parsing PR.");
             break;
         }
-        Serial.println("Parsed.");
 
         JsonObject& pr = root[F("node")];
         prs.emplace_back();
@@ -131,11 +129,11 @@ std::vector<PR> ResponseParser::parseResponse(Stream& _stream)
         parsedPR.approval = approval(pr["reviews"]["edges"]);
         parsedPR.tests = tests(pr["commits"]["edges"][0]["node"]["commit"]["status"]["contexts"]);
         parsedPR.updateCombined();
-        parsedPR.debugOut();
+        //parsedPR.debugOut();
 
         if (_stream.read() != ',')
             break;
     }
-    Serial.printf("Found %d PRs\n", prs.size());
+    Serial.printf("Found %d PRs.\n", prs.size());
     return prs;
 }
