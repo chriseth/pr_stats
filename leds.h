@@ -78,9 +78,7 @@ void LEDs::renderEmpty()
 double LEDs::flashFactor() const
 {
     double factor = sin(m_millis / 300.0);
-    if (factor < 0)
-        factor = 0;
-    return factor;
+    return 0.58 + factor * 0.4;
 }
 
 RgbColor LEDs::statusToColor(PRState _state) const
@@ -88,15 +86,15 @@ RgbColor LEDs::statusToColor(PRState _state) const
     switch (_state)
     {
     case PRState::MERGEABLE:
-        return RgbColor(0, 0, 255 * flashFactor());
+        return RgbColor(0, 0, BRIGHTNESS * flashFactor());
     case PRState::WAITING_FOR_TESTS:
-        return RgbColor(128, 128, 0);
+        return RgbColor(BRIGHTNESS / 2, BRIGHTNESS / 2, 0);
     case PRState::AUTHOR:
-        return RgbColor(255 * flashFactor(), 0, 0);
+        return RgbColor(BRIGHTNESS * flashFactor(), 0, 0);
     case PRState::REVIEWER:
-        return RgbColor(128 * flashFactor(), 128 * flashFactor(), 0);
+        return RgbColor(BRIGHTNESS * flashFactor() / 2, BRIGHTNESS * flashFactor() / 2, 0);
     case PRState::ERROR:
-        return RgbColor(255, 255, 255);
+        return RgbColor(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
     }
 }
 
