@@ -15,6 +15,7 @@ class LEDs {
         m_leds.Begin();
     }
     void render(std::vector<PR> const& _prs);
+    void renderEmpty();
     RgbColor statusToColor(PRState _state) const;
     double flashFactor() const;
     static int piecewiseLinear(int x, int _x0, int _y0, int _x1, int _y1, int _x2, int _y2, int _x3, int _y3);
@@ -26,37 +27,53 @@ class LEDs {
 
 void LEDs::render(std::vector<PR> const& _prs)
 {
-    m_leds.ClearTo(RgbColor(0, 0, 0));
-
     m_millis = millis();
-    int now = time(nullptr);
-    int yesterday = now - 3600 * 24;
-    int weekAgo = now - 3600 * 24 * 7;
-    int minTime = now;
-    for (PR const& pr: _prs)
-        minTime = std::min(minTime, pr.createdAt);
-
-    int currentLED = NUM_LEDS;
-    for (PR const& pr: _prs)
+    m_leds.ClearTo(RgbColor(0, 0, 0));
+    if (_prs.empty())
+        renderEmpty();
+    else
     {
-        int index = piecewiseLinear(
-            pr.createdAt,
-            minTime, 0,
-            weekAgo, NUM_LEDS / 4,
-            yesterday, NUM_LEDS * 3 / 4,
-            now, NUM_LEDS - 1
-        );
-        if (index >= currentLED)
-            index = currentLED - 1;
-        currentLED = index;
-        if (currentLED < 0)
-            break;
-        RgbColor color = statusToColor(pr.combinedStatus);
-        m_leds.SetPixelColor(currentLED, color);
-        //Serial.printf("Setting LED %d to %d, %d, %d\n", currentLED, color.R, color.G, color.B);
+        int now = time(nullptr);
+        int yesterday = now - 3600 * 24;
+        int weekAgo = now - 3600 * 24 * 7;
+        int minTime = now;
+        for (PR const& pr: _prs)
+            minTime = std::min(minTime, pr.createdAt);
+
+        int currentLED = NUM_LEDS;
+        for (PR const& pr: _prs)
+        {
+            int index = piecewiseLinear(
+                pr.createdAt,
+                minTime, 0,
+                weekAgo, NUM_LEDS / 4,
+                yesterday, NUM_LEDS * 3 / 4,
+                now, NUM_LEDS
+            );
+            if (index >= currentLED)
+                index = currentLED - 1;
+            currentLED = index;
+            if (currentLED < 0)
+                break;
+            RgbColor color = statusToColor(pr.combinedStatus);
+            m_leds.SetPixelColor(currentLED, color);
+            //Serial.printf("Setting LED %d to %d, %d, %d\n", currentLED, color.R, color.G, color.B);
+        }
     }
     m_leds.Show();
 }
+
+void LEDs::renderEmpty()
+{
+    double speed = 50;
+    int index = int(m_millis / speed) % NUM_LEDS;
+    int rem = int(256 * ((m_millis / speed) - int(m_millis / speed)));
+    m_leds.SetPixelColor(index, RgbColor(255, 0, 0));
+    m_leds.SetPixelColor((index + 1) % NUM_LEDS, RgbColor(rem, 0, 0));
+    m_leds.SetPixelColor((index + NUM_LEDS - 1) % NUM_LEDS, RgbColor(255 - rem, 0, 0));
+    m_leds.Show();
+}
+
 
 double LEDs::flashFactor() const
 {
