@@ -115,7 +115,8 @@ void Networking::update(T const& _processStream)
     https.addHeader(F("Authorization"), F(Github_token));
     https.addHeader(F("Content-Type"), F("application/json"));
     int httpCode = https.POST(
-        F(R"({"query":"{ repository(owner:\")" REPOSITORY_OWNER R"(\", name:\")" REPOSITORY_NAME R"(\") { pullRequests(last:40, states:OPEN, orderBy: {field: CREATED_AT, direction: ASC}) { edges { node { number title url mergeable createdAt commits(last:1) { edges { node { commit { status { state contexts { state context } }}}}} reviews(last:20, states:[APPROVED,CHANGES_REQUESTED,DISMISSED,PENDING]) { edges { node { author { login } state } } } } } } }}"})"));
+        F(R"({"query":"{ repository(owner:\")" REPOSITORY_OWNER R"(\", name:\")" REPOSITORY_NAME R"(\") { pullRequests(last:40, states:OPEN, orderBy: {field: CREATED_AT, direction: ASC}) { edges { node { number title url mergeable createdAt commits(last:1) { edges { node { commit { status { state contexts { state context } }}}}} reviews(last:20, states:[APPROVED,CHANGES_REQUESTED,DISMISSED,PENDING]) { edges { node { author { login } state } } } } } } }}"})")
+    );
     // httpCode will be negative on error
     if (httpCode > 0)
     {

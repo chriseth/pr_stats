@@ -113,7 +113,7 @@ std::vector<PR> ResponseParser::parseResponse(Stream& _stream)
 
     while (true)
     {
-        StaticJsonBuffer<4000> jsonBuffer;
+        DynamicJsonBuffer jsonBuffer;
         JsonObject& root = jsonBuffer.parse(_stream);
         if (!root.success())
         {
