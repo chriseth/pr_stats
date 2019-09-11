@@ -33,7 +33,5 @@ You also need to configure some access codes in ``secrets.h``:
 
  - it would be nice to have an animation/hilight when PRs change state
  - if PRs are closed, there could be an even nicer animation
- - currently, the WiFi code is blocking and thus the LEDs stop flashing
-   for each update
  - the ESP32 should listen for a webhook call from github to update
 

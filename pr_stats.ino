@@ -2,32 +2,37 @@
 #include "prs.h"
 
 
-PRs prs;
 LEDs leds;
+PRs prs;
 
 void setup() {
-  delay(200); // power-up safety delay
+  delay(200);
+
+  xTaskCreatePinnedToCore(wifiLoop, "Wifi Task", 8192 * 2, NULL, 1, NULL, 0);
+
+  delay(100);
+
   leds.setup();
-
-  Serial.begin(115200);
-  // Serial.setDebugOutput(true);
-  while (!Serial) {};
-
-  Serial.println();
-
-  prs.setup();
-
-  Serial.println("Ready.");
 }
 
+
+void wifiLoop(void* _param)
+{
+  delay(100);
+  prs.setup();
+  while (true)
+  {
+    prs.update();
+    delay(1000);
+  }
+}
+
+int sequenceNumber = -1;
+std::vector<PR> prStats;
 void loop()
 {
-  //  prs.render();
-  prs.update();
-  leds.render(prs.prs);
-  //if (Serial.available())
-  //  Github::parseResponse(Serial);
-  // Serial.println();
-  // Serial.println("Waiting 10s before the next round...");
-  delay(100);
+  sequenceNumber = prs.updatedPRs(sequenceNumber, prStats);
+  for (int i = 0; i < 100; i++)
+    leds.render(prStats);
+  delay(10);
 }  
