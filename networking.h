@@ -201,6 +201,7 @@ void Networking::update(T const& _processStream)
         Serial.println(payload);
     }
 
+    Serial.println("Update finished.");
     https.end();
 }
 

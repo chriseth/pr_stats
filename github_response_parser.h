@@ -112,15 +112,19 @@ std::vector<PR> ResponseParser::parseResponse(Stream& _stream)
 
     while (true)
     {
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject& root = jsonBuffer.parse(_stream);
-        if (!root.success())
+        // TODO check size
+        DynamicJsonDocument jsonDocument(10240);
+        Serial.println("Running parse.");
+        DeserializationError error = deserializeJson(jsonDocument, _stream);
+        if (error)
         {
             Serial.println("Error parsing PR.");
+            Serial.println(error.c_str());
             break;
         }
+        Serial.println("Got root.");
 
-        JsonObject& pr = root[F("node")];
+        JsonObject pr = jsonDocument[F("node")];
         prs.emplace_back();
         PR& parsedPR = prs.back();
         parsedPR.id = pr["number"].as<int>();
@@ -129,8 +133,9 @@ std::vector<PR> ResponseParser::parseResponse(Stream& _stream)
         parsedPR.approval = approval(pr["reviews"]["edges"]);
         parsedPR.tests = tests(pr["commits"]["edges"][0]["node"]["commit"]["status"]["contexts"]);
         parsedPR.updateCombined();
-        //parsedPR.debugOut();
+        parsedPR.debugOut();
 
+        Serial.println("Getting next item");
         if (_stream.read() != ',')
             break;
     }
